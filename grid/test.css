@@ -1,0 +1,14 @@
+.canvas {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	height: 480px;
+	width: 640px;
+	border: 1px solid red;
+	}
+	
+#img {
+	position: absolute;
+	top: 1px;
+	left: 1px;
+	}

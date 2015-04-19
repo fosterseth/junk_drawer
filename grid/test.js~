@@ -1,0 +1,22 @@
+$(document).ready(function() {
+	function Canvas(){
+		var t = this;
+		t.cont = $("#cont");
+		t.lay2 = $(document.createElement("canvas"));
+		t.cont.append(t.lay2);
+		t.lay2.addClass("canvas");
+		t.ctx2 = this.lay2[0].getContext("2d");
+		t.fillstyle = "rgba(255, 0, 0, 0.5)" 
+		t.fillsquare = function(x,y,w,h){
+			t.ctx2.fillStyle = t.fillstyle;
+			t.ctx2.fillRect(x,y,w,h);
+		}
+		
+		t.cont.on("click", function(t){
+			obj.fillsquare(40,40,40,40);
+		});
+	}
+	
+	var can1 = new Canvas();
+	can1.fillsquare(20, 20, 20, 20);
+})
