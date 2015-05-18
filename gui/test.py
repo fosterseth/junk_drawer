@@ -3,8 +3,8 @@ from PIL import Image, ImageTk
 import time
 import os, glob, datetime, math
 import scipy.io
-import pyaudio
 import wave
+import pyaudio
 
 '''CHUNK = 1024
 
