@@ -1,5 +1,5 @@
-import Tkinter as tk
-import tkFileDialog
+import tkinter as tk
+import tkinter.filedialog
 from PIL import Image, ImageTk
 import glob
 import os
@@ -18,14 +18,14 @@ class App( tk.Tk ):
         self.form.insert(0, "img_%d.jpg")
 		
     def askdir(self):
-        self.file_path = tkFileDialog.askdirectory()
+        #self.file_path = tk.filedialog.askdirectory()
+        self.file_path = "c:/users/sbf/desktop/images"
         os.chdir(self.file_path)
         self.initialize()
 			
     def initialize(self):
-        print("here")
         self.win = tk.Toplevel()
-    
+        
         self.ii = 0
         self.imagenames = glob.glob( self.globentry.get() )
         self.data = (len(self.imagenames))*[None]
@@ -47,8 +47,8 @@ class App( tk.Tk ):
             self.listbox.insert(tk.END, i + ", " + "None")
         
         
-        self.bind("<Right>", self.next_image)
-        self.bind("<Left>", self.prev_image)
+        self.win.bind("<Right>", self.next_image)
+        self.win.bind("<Left>", self.prev_image)
         self.canvas.bind("<B1-Motion>", self.clicked)
         self.canvas.bind("<ButtonRelease-1>", self.new_rect)
         self.canvas.bind("<Button-3>", self.clear_rect)
@@ -63,10 +63,11 @@ class App( tk.Tk ):
         self.canvas.pack(side = tk.LEFT)
         self.scb.pack(side=tk.RIGHT, fill=tk.Y)
         self.listbox.pack(side=tk.RIGHT, fill = tk.BOTH, expand = 1)
+        
     def next_image(self, event):
         print("next")
         if self.ii+1 < len(self.imagenames):
-            print(self.ii, len(self.imagenames)-1)
+            #print(self.ii, len(self.imagenames)-1)
             if self.flag_has_rect:
                 self.data[self.ii] = self.canvas.coords(self.rect)
                 self.listbox.delete(self.ii)
@@ -82,7 +83,7 @@ class App( tk.Tk ):
     def prev_image(self, event):
         print("prev")
         if self.ii-1 > -1:
-            print(self.ii, len(self.imagenames)-1)
+            #print(self.ii, len(self.imagenames)-1)
             if self.flag_has_rect:
                 self.data[self.ii] = self.canvas.coords(self.rect)
                 self.listbox.delete(self.ii)
@@ -96,21 +97,35 @@ class App( tk.Tk ):
             self.canvas.itemconfig(self.cimg, image = self.tkimg)
         
     def clicked(self, event):
-        print("xy ", event.x, event.y)
+        #print("xy ", event.x, event.y)
+        # delete old and draw new rect
         if self.flag_new_rect and self.flag_has_rect:
-            self.canvas.delete(self.rect)
-            self.flag_new_rect = False
-            self.flag_has_rect = False
+            points = self.canvas.coords(self.rect)
+            buf = 10
+            xleft = points[0] + buf
+            xright = points[2] - buf
+            ytop = points[1] + buf
+            ybot = points[3] - buf
+            
+            if event.x > xleft and event.x < xright and event.y > ytop and event.y < ybot:
+                self.movebegin = [event.x, event.y]
+            else:
+                self.canvas.delete(self.rect)
+                self.flag_new_rect = False
+                self.flag_has_rect = False
+        # draw new rect
         if not self.flag_has_rect:
             self.rect = self.canvas.create_rectangle(event.x, event.y, event.x+5, event.y+5, fill = "", outline = "blue", width = 3)
             self.flag_has_rect = True
             self.point = [event.x, event.y]
+            #self.rect.bind("<B1-Motion>", self.new_rect)
+        # update current rectangle
         else:
             minx = min(event.x, self.point[0])
             maxx = max(event.x, self.point[0])
             miny = min(event.y, self.point[1])
             maxy = max(event.y, self.point[1])
-            print(minx,miny,maxx,maxy)
+            #print(minx,miny,maxx,maxy)
             self.canvas.coords(self.rect, minx, miny, maxx, maxy)
             
     def new_rect(self, event):
@@ -122,7 +137,7 @@ class App( tk.Tk ):
             self.flag_has_rect = False
         
     def draw_stored_rect(self):
-        print("restoring rect", self.ii)
+        #print("restoring rect", self.ii)
         minx = self.data[self.ii][0]
         miny = self.data[self.ii][1]
         maxx = self.data[self.ii][2]
@@ -131,7 +146,7 @@ class App( tk.Tk ):
     
     def save(self):
         if self.save_location == None:
-            self.save_location = tkFileDialog.asksaveasfilename()
+            self.save_location = tk.filedialog.asksaveasfilename()
         fid = open(self.save_location, "w")
         for i, val in enumerate(self.data):
             if not val == None:
@@ -140,5 +155,4 @@ class App( tk.Tk ):
         fid.close()
 
 app = App()
-app.focus_force()
 app.mainloop()
