@@ -41,7 +41,7 @@ class App( tk.Tk ):
         self.cimg = self.canvas.create_image(0, 0, image = self.tkimg , anchor = tk.NW)
         self.canvas.configure(highlightthickness=0)
         self.scb = tk.Scrollbar(self.frame2, orient = tk.VERTICAL)
-        self.listbox = tk.Listbox(self.frame2, width = 35, yscrollcommand=self.scb.set)
+        self.listbox = tk.Listbox(self.frame2, width = 35, yscrollcommand=self.scb.set, selectmode=tk.SINGLE)
         self.save_button = tk.Button(self.frame1, text = "Save", command = self.save_data)
         self.load_button = tk.Button(self.frame1, text = "Load", command = self.load_data)
         self.save_location = None
@@ -56,6 +56,7 @@ class App( tk.Tk ):
         self.canvas.bind("<B1-Motion>", self.clicked)
         self.canvas.bind("<ButtonRelease-1>", self.new_rect)
         self.canvas.bind("<Button-3>", self.clear_rect)
+        self.listbox.bind("<<ListboxSelect>>", self.listbox_select)
         
         self.state = "idle"
         self.flag_has_rect = False
@@ -68,6 +69,12 @@ class App( tk.Tk ):
         self.canvas.pack(side = tk.LEFT)
         self.scb.pack(side=tk.RIGHT, fill=tk.Y)
         self.listbox.pack(side=tk.RIGHT, fill = tk.BOTH, expand = 1)
+    
+    def listbox_select(self, event):
+        print("listbox")
+        w = self.listbox.curselection()
+        print(w)
+    
     
     def display_image(self):
         img = Image.open(self.imagenames[self.ii])
@@ -177,8 +184,21 @@ class App( tk.Tk ):
                 self.canvas.coords(self.rect, points[0], points[1], points[2]+xoff, points[3]+yoff)
 
             
+    def snap_to_border(self):
+        if self.flag_has_rect == True:
+            points = self.canvas.coords(self.rect)
+            points = [max(0,x) for x in points]
+            w = self.imwidth
+            h = self.imheight
+            if points[2] > w:
+                points[2] = w
+            if points[3] > h:
+                points[3] = h
+            self.canvas.coords(self.rect, points[0], points[1], points[2], points[3])
+            
     def new_rect(self, event):
         self.state = "idle"
+        self.snap_to_border()
     
     def dist(self, p1, p2):
         return ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
