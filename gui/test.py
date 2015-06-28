@@ -2,10 +2,12 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import time
 import os, glob, datetime, math
-import scipy.io
-import wave
-import pyaudio
+import Queue
+import threading
 
+#import wave
+#import pyaudio
+#import scipy.io
 '''CHUNK = 1024
 
 wf = wave.open("C:/Users/sbf/Google Drive/python/gui/piano2.wav")
@@ -32,6 +34,12 @@ os.chdir("C:/Users/sbf/Desktop/images")
 class App(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
+        
+        imagenames = glob.glob("*.jpg")
+
+        
+        self.buffer = [None]*200
+        
         self.button1 = tk.Button(self, text="one", command = self.one)
         self.button2 = tk.Button(self, text="two", command = self.two)
         self.button1.pack()
@@ -43,11 +51,6 @@ class App(tk.Tk):
         self.img_count = 0
         self.spf = 1/30
         self.frametime = False
-        imagenames = glob.glob("*.jpg")
-        for i in imagenames:
-            img = Image.open(i)
-            tkimg = ImageTk.PhotoImage(img)
-            self.obj.append(tkimg)
 
         self.num_images = len(self.obj)
         self.image = tk.Label(self.frame, image = self.obj[0])
@@ -80,6 +83,10 @@ class App(tk.Tk):
 
     def update_img(self):
         self.image.configure(image=self.obj[self.img_count])
+        
+        
+def thread(buffer):
+    self.after(2000, print(buffer[3]))
         
 app = App()
 app.mainloop()
