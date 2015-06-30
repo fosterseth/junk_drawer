@@ -19,8 +19,8 @@ class App( tk.Tk ):
         self.form.insert(0, "img_%d.jpg")
 		
     def askdir(self):
-        #self.file_path = tk.filedialog.askdirectory()
-        self.file_path = "c:/users/sbf/desktop/images"
+        self.file_path = tk.filedialog.askdirectory()
+        #self.file_path = "c:/users/sbf/desktop/images"
         os.chdir(self.file_path)
         self.initialize()
 			
