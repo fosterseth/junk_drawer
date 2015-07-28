@@ -9,6 +9,7 @@ class App( tk.Tk ):
     def __init__( self ):
         tk.Tk.__init__( self )
         
+        tk.Button(self, text = "open frame file", command = self.askfile).pack()
         tk.Button(self, text = "open frame folder", command = self.askdir).pack()
         tk.Label(self, text = "enter glob").pack()
         self.globentry = tk.Entry(self)
@@ -17,11 +18,19 @@ class App( tk.Tk ):
         self.form = tk.Entry(self)
         self.form.pack()
         self.form.insert(0, "img_?.jpg")
-		
+        
+    def askfile(self):
+        self.file_path = tk.filedialog.askopenfilename()
+        fid = open(self.file_path, "r")
+        contents = fid.readlines()
+        self.imagenames = [i.rstrip("\n") for i in contents]
+        self.initialize()
+	
     def askdir(self):
         self.file_path = tk.filedialog.askdirectory()
         #self.file_path = "c:/users/sbf/desktop/images"
         os.chdir(self.file_path)
+        self.imagenames = glob.glob(self.globentry.get())
         self.initialize()
 			
     def initialize(self):
@@ -29,25 +38,28 @@ class App( tk.Tk ):
         
         self.ii = 0
         
-        self.imagenames = glob.glob(self.globentry.get())
         self.reorder_names()
         self.data = (len(self.imagenames))*[None]
         img = Image.open(self.imagenames[self.ii])
         self.imwidth, self.imheight = img.size
         self.tkimg = ImageTk.PhotoImage(img)
         
-        self.frame1 = tk.Frame(self.win)
-        self.frame2 = tk.Frame(self.win)
+        self.frame1 = tk.Frame(self.win, background = "blue")
+        self.frame2 = tk.Frame(self.win, background = "red")
+        self.frame3 = tk.Frame(self.frame2, background = "green")
+        self.frame4 = tk.Frame(self.frame3, background = "orange")
         self.canvas = tk.Canvas(self.frame2, width = self.imwidth, height = self.imheight)
         self.cimg = self.canvas.create_image(0, 0, image = self.tkimg , anchor = tk.NW)
         self.canvas.configure(highlightthickness=0)
-        self.scb = tk.Scrollbar(self.frame2, orient = tk.VERTICAL)
-        self.listbox = tk.Listbox(self.frame2, width = 35, yscrollcommand=self.scb.set, selectmode=tk.SINGLE, activestyle="none")#, selectbackground="#FFFF66", selectforeground="black")
+        self.scby = tk.Scrollbar(self.frame4, orient = tk.VERTICAL)
+        self.scbx = tk.Scrollbar(self.frame3, orient = tk.HORIZONTAL)
+        self.listbox = tk.Listbox(self.frame4, yscrollcommand=self.scby.set, xscrollcommand=self.scbx.set, selectmode=tk.SINGLE, activestyle="none")#, selectbackground="#FFFF66", selectforeground="black")
         self.save_button = tk.Button(self.frame1, text = "Save", command = self.save_data)
         self.load_button = tk.Button(self.frame1, text = "Load", command = self.load_data)
         self.save_location = None
         self.label = tk.Label(self.frame1, text = "Right Arrow: Next, Left Arrow: Prev, Right-Click: No Object")
-        self.scb.config(command=self.listbox.yview)
+        self.scby.config(command=self.listbox.yview)
+        self.scbx.config(command=self.listbox.xview)
         for i in self.imagenames:
             self.listbox.insert(tk.END, " "*3 + i)
         self.listbox.itemconfig(self.ii, bg="#FFFF66")
@@ -64,14 +76,20 @@ class App( tk.Tk ):
         
         pad = 3
         
+        
         self.frame1.pack()
-        self.frame2.pack(fill=tk.Y, expand=1)
+        self.frame2.pack(fill=tk.BOTH, expand=1)
+        self.canvas.pack(side = tk.LEFT)
+        self.frame3.pack(side = tk.LEFT, fill=tk.BOTH, expand=1)
+        self.frame4.pack(fill= tk.BOTH, expand = 1)
         self.label.pack(side=tk.LEFT, padx=pad, pady=pad)
         self.load_button.pack(side = tk.RIGHT, padx=pad, pady=pad)
         self.save_button.pack(side = tk.RIGHT, padx=pad, pady=pad)
-        self.canvas.pack(side = tk.LEFT)
-        self.scb.pack(side=tk.RIGHT, fill=tk.Y)
-        self.listbox.pack(side=tk.RIGHT, fill = tk.BOTH, expand = 1)
+
+        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand = 1)
+        self.scby.pack(side=tk.LEFT, fill=tk.Y)
+        self.scbx.pack(fill=tk.X)
+
     
     def reorder_names(self):
         form = self.form.get()
