@@ -179,7 +179,7 @@ class App( tk.Tk ):
                 xright = points[2]
                 ytop = points[1]
                 ybot = points[3]
-                buf = 30
+                buf = 10
                 tl = self.dist([xleft, ytop], [event.x, event.y])
                 tr = self.dist([xright, ytop], [event.x, event.y])
                 bl = self.dist([xleft, ybot], [event.x, event.y])
