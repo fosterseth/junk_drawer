@@ -2,7 +2,6 @@ import tkinter as tk
 import tkinter.filedialog
 from PIL import Image, ImageTk
 import os, glob, datetime, math
-import threading
 
 #os.chdir("c:/users/sbf/desktop/images")
 
@@ -54,17 +53,15 @@ class App(tk.Tk):
         self.canvas = tk.Canvas(self.frame, width = self.imwidth, height = self.imheight)
         self.cimg = self.canvas.create_image(0, 0, image = self.tkimg , anchor = tk.NW)
         self.canvas.configure(highlightthickness=0)
-        
-        t = threading.Thread(target=self.fillbuffer)
-        t.start()
-        
-        self.nextii()
-        
+
         self.frame.pack()
         self.button1.pack()
         self.button2.pack()
         self.button3.pack()
         self.canvas.pack()
+        
+        self.fillbuffer()
+        self.nextii()
     
     def reorder_names(self):
         form = self.form.get()
@@ -112,7 +109,7 @@ class App(tk.Tk):
             self.canvas.itemconfig(self.cimg, image = self.buffer[self.ii])
         else:
             print("image not ready")
-            self.after(10, self.showimage)
+            self.after(1, self.showimage)
         
     def printbuffer(self):
         print(self.buffer.count(None))
@@ -122,15 +119,15 @@ class App(tk.Tk):
         print("====================")
         
     def fillbuffer(self):
-        while True:
-            for i,val in enumerate(self.buffer):
-                if abs(self.ii - i) < self.bufsize:
-                    if self.buffer[i] == None:
-                        img = Image.open(self.imagenames[i])
-                        tkimg = ImageTk.PhotoImage(img)
-                        self.buffer[i] = tkimg
-                else:
-                    self.buffer[i] = None
+        for i,val in enumerate(self.buffer):
+            if abs(self.ii - i) < self.bufsize:
+                if self.buffer[i] == None:
+                    img = Image.open(self.imagenames[i])
+                    tkimg = ImageTk.PhotoImage(img)
+                    self.buffer[i] = tkimg
+            else:
+                self.buffer[i] = None
+        self.after(1, self.fillbuffer)
     
 
 
